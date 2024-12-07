@@ -40,10 +40,13 @@ selected_stock = st.selectbox(
     'Which etf would you like to analyze?',
     stock_names,
     index=default_index)
+selected_stock_symbol = selected_stock.split()[0]
 
+#download the data
 stock_data = yf.download(selected_stock, auto_adjust=True)
-st.write(stock_data)
 
+#cut out years without prices, '~' is numpy serial 'not'
+stock_data = stock_data[(~stock_data["Close"][selected_stock_symbol].isnull())]
 stock_data['Year'] = stock_data.index.year
 min_value = stock_data['Year'].min()
 max_value = stock_data['Year'].max()
@@ -55,20 +58,17 @@ from_year, to_year = st.slider(
     value=[min_value, max_value])
 
  #Filter the data
-filtered_stock_data = stock_data[
+t_filtered_stock_data = stock_data[
     (stock_data['Year'] <= to_year)
     & (from_year <= stock_data['Year'])]
-st.write(filtered_stock_data)
+stock_price=pd.DataFrame()
+stock_price["Close"]=t_filtered_stock_data["Close"][selected_stock_symbol]
+stock_price["Low"]=t_filtered_stock_data["Low"][selected_stock_symbol]
 
-#st.header('GDP over time', divider='gray')
+st.header(selected_stock_symbol+' price over time')
 
-#st.line_chart(
-#    filtered_gdp_df,
-#    x='Year',
-#    y='GDP',
-#    color='Country Code',
-#)
-
-#first_year = gdp_df[gdp_df['Year'] == from_year]
-#last_year = gdp_df[gdp_df['Year'] == to_year]
+st.line_chart(
+    stock_price['Close'],
+    y_label='price'
+)
 
