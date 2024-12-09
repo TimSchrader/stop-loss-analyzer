@@ -15,10 +15,10 @@ st.set_page_config(
 
 @st.cache_data
 def get_tracker_names():
-    """Grab GDP data from a CSV file."""
-    #https://github.com/paulperry/quant/blob/master/ETFs.csv
+    """Grab tracker name data from a CSV file.
+    https://github.com/paulperry/quant/blob/master/ETFs.csv
+    Symbol,Name,Index,Description,Category,Provider"""
     tndftmp = pd.read_csv("trackernames.csv")
-    # Symbol,Name,Index,Description,Category,Provider
     return tndftmp
 
 stock_df = get_tracker_names()
