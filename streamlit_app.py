@@ -3,6 +3,8 @@ import pandas as pd
 import math
 from pathlib import Path
 import yfinance as yf
+from datetime import timedelta
+from datetime import datetime
 
 # Set the title and favicon that appear in the Browser's tab bar.
 st.set_page_config(
@@ -48,19 +50,21 @@ stock_data = yf.download(selected_stock, auto_adjust=True)
 #cut out years without prices, '~' is numpy serial 'not'
 stock_data = stock_data[(~stock_data["Close"][selected_stock_symbol].isnull())]
 stock_data['Year'] = stock_data.index.year
-min_value = stock_data['Year'].min()
-max_value = stock_data['Year'].max()
+min_value = stock_data.index.min().date()
+max_value = stock_data.index.max().date()
 
 from_year, to_year = st.slider(
     'Select a timeframe to analyze.',
     min_value=min_value,
     max_value=max_value,
-    value=[min_value, max_value])
+    value=[min_value, max_value],
+    format="DD/MM/YY")
+analysis_time=to_year-from_year
 
  #Filter the data
 t_filtered_stock_data = stock_data[
-    (stock_data['Year'] <= to_year)
-    & (from_year <= stock_data['Year'])]
+    (stock_data['Year'] <= int(to_year.year))
+    & (int(from_year.year) <= stock_data['Year'])]
 stock_price=pd.DataFrame()
 stock_price["Close"]=t_filtered_stock_data["Close"][selected_stock_symbol]
 stock_price["Low"]=t_filtered_stock_data["Low"][selected_stock_symbol]
@@ -72,3 +76,8 @@ st.line_chart(
     y_label='price'
 )
 
+holding_time = st.slider("What is the expected holding time in days?",
+                         min_value=1,
+                         max_value=analysis_time.days,
+                         value=30)
+st.write(holding_time)
